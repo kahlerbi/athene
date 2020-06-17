@@ -20,6 +20,7 @@ class EmailTestCase(TestCase):
                 subject, content, sender, recipient,
                 connection=connection,
             ).send()
+        print('test ran')
 
     """ def send_email(self, sender, recipient, subject, content, test=False):
         message = MIMEText(content)
