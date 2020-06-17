@@ -8,7 +8,7 @@ from django.utils.functional import cached_property
 from django.utils.timezone import now
 from multiselectfield import MultiSelectField
 
-from . import google, twilio
+from . import google, twilio, mailgun
 
 DAYS_OF_WEEK = [
     (0, 'Sunday'),
@@ -98,7 +98,7 @@ class HumanCalendarSubscription(models.Model):
             today = Template('{{ timestamp|date:"DATE_FORMAT" }}').render(
                 Context(dict(timestamp=now()))
             )
-            google.gmail.send_email('info@seekhealing.org', self.human.email,
+            mailgun.send_email('info@seekhealing.org', self.human.email,
                                     f'Upcoming {self.calendar.name} - {today}',
                                     content, test=test)
         elif self.contact_method == 2: # sms
