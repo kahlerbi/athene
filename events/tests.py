@@ -12,7 +12,7 @@ import pickle
 # Create your tests here.
 
 class EmailTestCase(TestCase):
-    def send_email_test(self, sender='shaun.kahler@gmail.com', recipient='shaun.kahler@gmail.com', subject='test', content='success'):
+    def test_send_email(self, sender='shaun.kahler@gmail.com', recipient='shaun.kahler@gmail.com', subject='test', content='success'):
         message = MIMEText(content)
         payload = {'raw': base64.urlsafe_b64encode(message.as_string().encode('utf-8')).decode('ascii')}
         with mail.get_connection() as connection:
