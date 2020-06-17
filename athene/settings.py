@@ -87,8 +87,9 @@ import dj_database_url
 DATABASES = {
     'default': dj_database_url.config(env='DATABASE_URL',
                                       default='postgres://athene:athene@127.0.0.1:5432/athene'),
-                                      
+
 }
+DATABASES['default']['TEST'] = {'NAME': DATABASES['default']['NAME']}
 
 
 # Password validation
