@@ -29,6 +29,7 @@ django-ckeditor = "*"
 googlemaps = "*"
 mailchimp3 = "*"
 sentry-sdk = "*"
+celery = "*"
 
 [requires]
 python_version = "3.7"
