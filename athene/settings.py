@@ -210,13 +210,5 @@ EMAIL_PORT = os.environ.get('MAILGUN_SMTP_PORT', '')
 EMAIL_HOST_USER = os.environ.get('MAILGUN_SMTP_LOGIN', '')
 EMAIL_HOST_PASSWORD = os.environ.get('MAILGUN_SMTP_PASSWORD', '')
 
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379/1'),
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient"
-        },
-        "KEY_PREFIX": "example"
-    }
-}
+CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379/1')
+CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379/1')
