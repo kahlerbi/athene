@@ -31,6 +31,7 @@ mailchimp3 = "*"
 sentry-sdk = "*"
 celery = "*"
 redis = "*"
+invoke = "*"
 
 [requires]
 python_version = "3.7"
