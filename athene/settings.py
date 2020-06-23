@@ -139,18 +139,23 @@ LOGGING = {
             'formatter': 'standard',
             'class': 'logging.StreamHandler',
         },
+        'celery': { 
+            'level': 'DEBUG' if DEBUG else 'INFO',
+            'formatter': 'standard',
+            'class': 'celery.task',
+        },
     },
     'loggers': { 
         'athene': { 
-            'handlers': ['default'],
+            'handlers': ['default', 'celery'],
             'level': 'DEBUG',
         },
         'seekers': { 
-            'handlers': ['default'],
+            'handlers': ['default', 'celery'],
             'level': 'DEBUG',
         },
         'events': { 
-            'handlers': ['default'],
+            'handlers': ['default', 'celery'],
             'level': 'DEBUG',
         },
     } 
