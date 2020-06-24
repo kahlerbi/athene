@@ -107,6 +107,10 @@ class HumanAdminMixin(object):
                     instance.added_by = request.user
             instance.save()
 
+""" def test_action(self, request, queryset):
+        for human in queryset:
+            self.message_user('test')
+    actions = ['test_action'] """
 
 class FirstConversationFilter(admin.SimpleListFilter):
     title = 'First conversation scheduled'
@@ -211,7 +215,12 @@ class HumanAdmin(HumanAdminMixin, admin.ModelAdmin):
         self.message_user(request, f'{len(queryset)} prospect(s) marked as Community Partners.')
     mark_as_community_partner.short_description = 'Mark as Community Partner'
 
-    actions = ['enroll_as_seeker', 'mark_as_community_partner']
+    def test_action(self, request, queryset):
+        for obj in queryset:
+            print('poop')
+        self.message_user(request, 'test')
+
+    actions = ['enroll_as_seeker', 'mark_as_community_partner', 'test_action']
 
 
 class IsActiveFilter(admin.SimpleListFilter):
