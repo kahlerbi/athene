@@ -153,7 +153,7 @@ LOGGING = {
             'handlers': ['default'],
             'level': 'DEBUG',
         },
-        'celery.task': { 
+        'seekers.tasks': { 
             'handlers': ['default'],
             'level': 'DEBUG',
     }, 
