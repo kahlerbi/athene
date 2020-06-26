@@ -5,11 +5,9 @@
 {% block content %}
 <div>test test</div>
 <div>
-<form action="asdjfklajsdf" method="post">
+<form action="<path:object_id>/sendemail/" method="post">
 {% csrf_token %}
-where is my form
 {{ form }}
-{{ email }}
 {{ emails }}
 <input type="submit" value="Submit">
 </div>

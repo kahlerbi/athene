@@ -18,8 +18,6 @@ from django.views.decorators.csrf import csrf_protect
 from . import models, mailchimp
 from events.admin import HumanCalendarSubscriptionAdmin
 
-from .forms import EmailForm
-
 
 logger = logging.getLogger(__name__)
 csrf_protect_m = method_decorator(csrf_protect)
@@ -49,6 +47,8 @@ class MailchimpForm(forms.Form):
                                      widget=forms.widgets.CheckboxSelectMultiple,
                                      required=False)
 
+class EmailForm(forms.Form):
+    email_content = forms.CharField(label='email_content', max_length=5000)
 
 class HumanAdminMixin(object):
     def save_model(self, request, obj, form, change):
@@ -116,12 +116,13 @@ class HumanAdminMixin(object):
             if obj.email:
                 emails.append(obj.email)
         ctxt['emails'] = emails
-        if request.method == 'POST':
-            form = EmailForm(request.POST)
-            if form.is_valid:
-                print(form)
-        else:
-            ctxt['form'] = EmailForm()
+        try:
+            request.POST.get('email_content')
+            print('email_content')
+        except:
+            print('no')
+        ctxt['form'] = EmailForm()
+        print(ctxt['form'])
         return render(request,
                       'admin/seekers/human/test.html',
                       context=ctxt)
@@ -160,7 +161,10 @@ class HumanAdmin(HumanAdminMixin, admin.ModelAdmin):
         urlpatterns = [
             path('<path:object_id>/enroll/', 
                  self.admin_site.admin_view(self.enroll_seeker), 
-                 name='seekers_human_enroll')
+                 name='seekers_human_enroll'),
+            path('<path:object_id>/sendemail/', 
+                self.admin_site.admin_view(self.send_email), 
+                name='seekers_send_email')
         ] + urlpatterns
         return urlpatterns
 
@@ -388,7 +392,7 @@ class SeekerAdmin(HumanAdminMixin, admin.ModelAdmin):
         self.message_user(request, f'{len(queryset)} seeker(s) downgraded to Prospects.')
     downgrade_to_prospect.short_description = 'Downgrade to Prospect'
 
-    actions = ['downgrade_to_prospect']
+    actions = ['downgrade_to_prospect', 'send_email']
 
 
 class IsActivePairingFilter(admin.SimpleListFilter):
@@ -508,6 +512,7 @@ class CommunityPartnerAdmin(HumanAdminMixin, admin.ModelAdmin):
     )
     readonly_fields = ['show_id', 'created', 'updated']
     list_display = ['first_names', 'last_names', 'email', 'phone_number']
+    actions = ['send_email']
 
 admin.site.register(models.Human, HumanAdmin)
 admin.site.register(models.Seeker, SeekerAdmin)
