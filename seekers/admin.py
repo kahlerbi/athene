@@ -123,6 +123,7 @@ class HumanAdminMixin(object):
             print('no')
         ctxt['form'] = EmailForm()
         print(ctxt['form'])
+        print(request.POST)
         return render(request,
                       'admin/seekers/human/test.html',
                       context=ctxt)
@@ -164,7 +165,7 @@ class HumanAdmin(HumanAdminMixin, admin.ModelAdmin):
                  name='seekers_human_enroll'),
             path('<path:object_id>/sendemail/', 
                 self.admin_site.admin_view(self.send_email), 
-                name='seekers_send_email')
+                name='send_email')
         ] + urlpatterns
         return urlpatterns
 
