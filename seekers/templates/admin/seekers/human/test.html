@@ -1,0 +1,16 @@
+{% extends "admin/base_site.html" %}
+
+
+{% block branding %}SeekHealing{% endblock %}
+{% block content %}
+<div>test test</div>
+<div>
+<form action="asdjfklajsdf" method="post">
+{% csrf_token %}
+where is my form
+{{ form }}
+{{ email }}
+{{ emails }}
+<input type="submit" value="Submit">
+</div>
+{% endblock %}

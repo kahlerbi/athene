@@ -18,6 +18,8 @@ from django.views.decorators.csrf import csrf_protect
 from . import models, mailchimp
 from events.admin import HumanCalendarSubscriptionAdmin
 
+from .forms import EmailForm
+
 
 logger = logging.getLogger(__name__)
 csrf_protect_m = method_decorator(csrf_protect)
@@ -107,10 +109,22 @@ class HumanAdminMixin(object):
                     instance.added_by = request.user
             instance.save()
 
-""" def test_action(self, request, queryset):
-        for human in queryset:
-            self.message_user('test')
-    actions = ['test_action'] """
+    def send_email(self, request, queryset):
+        emails = []
+        ctxt = {}
+        for obj in queryset:
+            if obj.email:
+                emails.append(obj.email)
+        ctxt['emails'] = emails
+        if request.method == 'POST':
+            form = EmailForm(request.POST)
+            if form.is_valid:
+                print(form)
+        else:
+            ctxt['form'] = EmailForm()
+        return render(request,
+                      'admin/seekers/human/test.html',
+                      context=ctxt)
 
 class FirstConversationFilter(admin.SimpleListFilter):
     title = 'First conversation scheduled'
@@ -215,12 +229,7 @@ class HumanAdmin(HumanAdminMixin, admin.ModelAdmin):
         self.message_user(request, f'{len(queryset)} prospect(s) marked as Community Partners.')
     mark_as_community_partner.short_description = 'Mark as Community Partner'
 
-    def test_action(self, request, queryset):
-        for obj in queryset:
-            print('poop')
-        self.message_user(request, 'test')
-
-    actions = ['enroll_as_seeker', 'mark_as_community_partner', 'test_action']
+    actions = ['enroll_as_seeker', 'mark_as_community_partner', 'send_email']
 
 
 class IsActiveFilter(admin.SimpleListFilter):
