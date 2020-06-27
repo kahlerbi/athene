@@ -18,7 +18,7 @@ from django.views.decorators.csrf import csrf_protect
 from . import models, mailchimp
 from events.admin import HumanCalendarSubscriptionAdmin
 
-import seekers.mailgun
+from . import tasks
 
 
 logger = logging.getLogger(__name__)
@@ -111,7 +111,7 @@ class HumanAdminMixin(object):
                     instance.added_by = request.user
             instance.save()
 
-def send_email(modeladmin, request, queryset):
+def send_email_page(modeladmin, request, queryset):
     emails = []
     ctxt = {}
     ctxt['queryset'] = queryset
@@ -121,10 +121,9 @@ def send_email(modeladmin, request, queryset):
     ctxt['emails'] = emails
     if request.POST.get('email_content') != None:
         email_content = request.POST.get('email_content')
-        seekers.mailgun.send_email('info@seekhealing.org', emails, 'test', email_content, test=False)
-        modeladmin.message_user(request, 'email sent')
-    else:
-        print('no')
+        tasks.send_email('info@seekhealing.org', emails, 'test', email_content).delay()
+        # how to get confirmation e-mail was sent
+        # modeladmin.message_user(request, 'email sent')
     ctxt['form'] = EmailForm()
     return render(request,
                     'admin/seekers/human/test.html',
@@ -233,7 +232,7 @@ class HumanAdmin(HumanAdminMixin, admin.ModelAdmin):
         self.message_user(request, f'{len(queryset)} prospect(s) marked as Community Partners.')
     mark_as_community_partner.short_description = 'Mark as Community Partner'
 
-    actions = ['enroll_as_seeker', 'mark_as_community_partner', 'send_email']
+    actions = ['enroll_as_seeker', 'mark_as_community_partner', 'send_email_page']
 
 
 class IsActiveFilter(admin.SimpleListFilter):
@@ -392,7 +391,7 @@ class SeekerAdmin(HumanAdminMixin, admin.ModelAdmin):
         self.message_user(request, f'{len(queryset)} seeker(s) downgraded to Prospects.')
     downgrade_to_prospect.short_description = 'Downgrade to Prospect'
 
-    actions = ['downgrade_to_prospect', send_email]
+    actions = ['downgrade_to_prospect', send_email_page]
 
 
 class IsActivePairingFilter(admin.SimpleListFilter):
@@ -512,7 +511,7 @@ class CommunityPartnerAdmin(HumanAdminMixin, admin.ModelAdmin):
     )
     readonly_fields = ['show_id', 'created', 'updated']
     list_display = ['first_names', 'last_names', 'email', 'phone_number']
-    actions = ['send_email']
+    actions = ['send_email_page']
 
 admin.site.register(models.Human, HumanAdmin)
 admin.site.register(models.Seeker, SeekerAdmin)
