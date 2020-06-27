@@ -18,6 +18,8 @@ from django.views.decorators.csrf import csrf_protect
 from . import models, mailchimp
 from events.admin import HumanCalendarSubscriptionAdmin
 
+import seekers.mailgun
+
 
 logger = logging.getLogger(__name__)
 csrf_protect_m = method_decorator(csrf_protect)
@@ -109,24 +111,24 @@ class HumanAdminMixin(object):
                     instance.added_by = request.user
             instance.save()
 
-    def send_email(self, request, queryset):
-        emails = []
-        ctxt = {}
-        for obj in queryset:
-            if obj.email:
-                emails.append(obj.email)
-        ctxt['emails'] = emails
-        try:
-            request.POST.get('email_content')
-            print('email_content')
-        except:
-            print('no')
-        ctxt['form'] = EmailForm()
-        print(ctxt['form'])
-        print(request.POST)
-        return render(request,
-                      'admin/seekers/human/test.html',
-                      context=ctxt)
+def send_email(modeladmin, request, queryset):
+    emails = []
+    ctxt = {}
+    ctxt['queryset'] = queryset
+    for obj in queryset:
+        if obj.email:
+            emails.append(obj.email)
+    ctxt['emails'] = emails
+    if request.POST.get('email_content') != None:
+        email_content = request.POST.get('email_content')
+        seekers.mailgun.send_email('info@seekhealing.org', emails, 'test', email_content, test=False)
+        modeladmin.message_user(request, 'email sent')
+    else:
+        print('no')
+    ctxt['form'] = EmailForm()
+    return render(request,
+                    'admin/seekers/human/test.html',
+                    context=ctxt)
 
 class FirstConversationFilter(admin.SimpleListFilter):
     title = 'First conversation scheduled'
@@ -162,10 +164,7 @@ class HumanAdmin(HumanAdminMixin, admin.ModelAdmin):
         urlpatterns = [
             path('<path:object_id>/enroll/', 
                  self.admin_site.admin_view(self.enroll_seeker), 
-                 name='seekers_human_enroll'),
-            path('<path:object_id>/sendemail/', 
-                self.admin_site.admin_view(self.send_email), 
-                name='send_email')
+                 name='seekers_human_enroll')
         ] + urlpatterns
         return urlpatterns
 
@@ -393,7 +392,7 @@ class SeekerAdmin(HumanAdminMixin, admin.ModelAdmin):
         self.message_user(request, f'{len(queryset)} seeker(s) downgraded to Prospects.')
     downgrade_to_prospect.short_description = 'Downgrade to Prospect'
 
-    actions = ['downgrade_to_prospect', 'send_email']
+    actions = ['downgrade_to_prospect', send_email]
 
 
 class IsActivePairingFilter(admin.SimpleListFilter):
