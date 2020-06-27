@@ -15,8 +15,9 @@ def print_task():
 
 @shared_task
 def send_email(sender, recipient, subject, content, test=False):
-        with mail.get_connection() as connection:
-            mail.EmailMessage(
-                subject, content, sender, recipient,
-                connection=connection
-            ).send()
+    print('email task deployed')
+    with mail.get_connection() as connection:
+        mail.EmailMessage(
+            subject, content, sender, recipient,
+            connection=connection
+        ).send()
