@@ -18,8 +18,6 @@ from django.views.decorators.csrf import csrf_protect
 from . import models, mailchimp
 from events.admin import HumanCalendarSubscriptionAdmin
 
-from . import tasks
-
 
 logger = logging.getLogger(__name__)
 csrf_protect_m = method_decorator(csrf_protect)
@@ -112,6 +110,7 @@ class HumanAdminMixin(object):
             instance.save()
 
 def send_email_page(modeladmin, request, queryset):
+    from . import tasks
     emails = []
     ctxt = {}
     ctxt['queryset'] = queryset
@@ -121,8 +120,8 @@ def send_email_page(modeladmin, request, queryset):
     ctxt['emails'] = emails
     if request.POST.get('email_content') != None:
         email_content = request.POST.get('email_content')
-        tasks.send_email('info@seekhealing.org', emails, 'test', email_content).delay()
-        # how to get confirmation e-mail was sent
+        tasks.send_email.delay('info@seekhealing.org', emails, 'test', email_content)
+        # how to get confirmation e-mail was sent (?)
         # modeladmin.message_user(request, 'email sent')
     ctxt['form'] = EmailForm()
     return render(request,
